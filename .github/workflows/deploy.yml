@@ -1,0 +1,25 @@
+name: Build & Deploy Quarto
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Install Quarto CLI and render the site
+      - uses: quarto-dev/quarto-actions/setup@v2
+      - uses: quarto-dev/quarto-actions/render@v2
+
+      # Rsync the rendered site to your home server over SSH
+      - name: Rsync to home server
+        uses: burnett01/rsync-deployments@6.0
+        with:
+          switches: -avz --delete --rsync-path="wsl rsync"
+          path: _site/
+          remote_path: ${{ secrets.DEPLOY_PATH }}
+          remote_host: ${{ secrets.DEPLOY_HOST }}
+          remote_user: ${{ secrets.DEPLOY_USER }}
+          remote_key: ${{ secrets.DEPLOY_KEY }}
