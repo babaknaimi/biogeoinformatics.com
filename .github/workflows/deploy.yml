@@ -9,17 +9,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # Install Quarto CLI and render the site
+      # 1) Install Quarto & render
       - uses: quarto-dev/quarto-actions/setup@v2
       - uses: quarto-dev/quarto-actions/render@v2
 
-      # Rsync the rendered site to your home server over SSH
-      - name: Rsync to home server
-        uses: burnett01/rsync-deployments@6.0
+      # 2) Rsync the rendered _site/ to your home server over SSH
+      - name: rsync deployments
+        uses: burnett01/rsync-deployments@7.1.0
         with:
+          # IMPORTANT: use WSL rsync on the Windows server
           switches: -avz --delete --rsync-path="wsl rsync"
           path: _site/
           remote_path: ${{ secrets.DEPLOY_PATH }}
-          remote_host: ${{ secrets.DEPLOY_HOST }}
+          remote_host: ${{ secrets.DEPLOY_HOST }}     # geospatial.ddns.net
           remote_user: ${{ secrets.DEPLOY_USER }}
-          remote_key: ${{ secrets.DEPLOY_KEY }}
+          remote_key:  ${{ secrets.DEPLOY_KEY }}      # private key text
